@@ -95,9 +95,8 @@ namespace AdventOfCodeDay2
             Console.ReadLine();
         }
 
-        static void Challenge1()
+        static void Challenge1(string inputFile)
         {
-            string inputFile = @"C:\Users\Eoghan\source\repos\AdventOfCodeDay2\AdventOfCodeDay2\Day2Input.txt";
             string[] opCodeList = System.IO.File.ReadAllText(inputFile).Split(",");
             int currIndexer = 0;
 
