@@ -28,7 +28,7 @@ namespace AdventOfCodeDay7
 
             opCode = new List<int>(opCodeOrig);
             currIndexer = 0;
-            input = j;
+            //input = j;
             //while (true)
             //{
             //    currOpCode = opCode[currIndexer].ToString().PadLeft(5, '0');
