@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AdventOfCode;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,65 +29,54 @@ namespace AdventOfCodeDay7
             {
                 opCodeOrig.Add(int.Parse(tempOpCode));
             }
-            List<Tuple<int, int, int>> output2 = new List<Tuple<int, int, int>>();
 
-            int outputs = 0;
-            int ampInput = 0;
-            int newOutput = 0;
+            int output = 0;
+            int maxOutput = 0;
+            List<int> input = new List<int>();
+            List<char> maxPhaseInput = new List<char>();
 
-            List<char> currInputList = new List<char> { '4', '3', '2', '1', '0' };
-            //List<char> currInput = new List<char> { '0', '1', '2', '3', '4' };
-            //List<char> currInput = new List<char> { '1', '0', '4', '3', '2' };
+            //List<char> currInputList = new List<char> { '4', '3', '2', '1', '0' };
+            //List<char> currInputList = new List<char> { '0', '1', '2', '3', '4' };
+            List<char> currInputList = new List<char> { '1', '0', '4', '3', '2' };
 
-            foreach (char currInput in currInputList)
+            IntCode currIntCode = new IntCode(opCode,input);
+
+            foreach (List<char> currPhaseList in phaseListInput)
             {
-                opCode = new List<int>(opCodeOrig);
-                opCode[0] = (int)char.GetNumericValue(currInput);
-                outputs = newOutput;
-                ampInput = outputs;
-                opCode[1] = ampInput;
-                currIndexer = 0;
-                while (true)
+                foreach (char currPhase in currPhaseList)
                 {
-                    currOpCode = opCode[currIndexer].ToString().PadLeft(5, '0');
-                    opCodeCheck = Int32.Parse(currOpCode.Substring(3, 2));
-                    //Console.WriteLine(currIndexer);
-                    //Console.WriteLine("Current Op Code is " + currOpCode);
-                    if (opCodeCheck == 99)
+                    input = new List<int> { (int)char.GetNumericValue(currPhase), output };
+                    opCode = new List<int>(opCodeOrig);
+                    currIntCode = new IntCode(opCode, input);
+                    currIndexer = 0;
+                    while (true)
                     {
-                        break;
-                    }
-                    else if(newOutput != outputs)
-                    {
-                        Console.WriteLine("I have a new output!!");
-                        break;
-                    }
-                    else
-                    {
-                        (opCode, ampInput, newOutput, currIndexer) = OpCodeForward(opCode, currIndexer, ampInput, outputs, currIndexer);
+                        currOpCode = opCode[currIndexer].ToString().PadLeft(5, '0');
+                        opCodeCheck = Int32.Parse(currOpCode.Substring(3, 2));
+                        //Console.WriteLine(currIndexer);
+                        //Console.WriteLine("Current Op Code is " + currOpCode);
+                        if (opCodeCheck == 99)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            (opCode, input, output, currIndexer) = OpCodeForward(opCode, currIndexer, input, output, currIndexer);
+                        }
                     }
                 }
-            }
 
-            //while (true)
-            //{
-            //    currOpCode = opCode[currIndexer].ToString().PadLeft(5, '0');
-            //    opCodeCheck = Int32.Parse(currOpCode.Substring(3, 2));
-            //    //Console.WriteLine(currIndexer);
-            //    //Console.WriteLine("Current Op Code is " + currOpCode);
-            //    if (opCodeCheck == 99)
-            //    {
-            //        break;
-            //    }
-            //    else
-            //    {
-            //        (opCode, ampInput, outputs, currIndexer) = OpCodeForward(opCode, currIndexer, ampInput, outputs, currIndexer);
-            //    }
-            //}
+                if (output > maxOutput)
+                {
+                    maxOutput = output;
+                    maxPhaseInput = new List<char>(currPhaseList);
+                }
+                output = 0;
+
+            }
             
-            Console.WriteLine("Final Input List is " + string.Join(",", input_list));
-            Console.WriteLine("Final Diagnostic Code is " + outputs);
-            Console.WriteLine("Final Op Code is " + string.Join(",", opCode));
+            Console.WriteLine("Final Input List is " + string.Join(",", maxPhaseInput));
+            Console.WriteLine("Maximum Output is " + maxOutput);
             Console.ReadLine();
         }
 
@@ -135,7 +125,7 @@ namespace AdventOfCodeDay7
             return returnList;
         }
 
-        static public Tuple<List<int>, int, int, int> OpCodeForward(List<int> currList, int startPoint, int input, int outputs, int currIndexer)
+        static public Tuple<List<int>, List<int>, int, int> OpCodeForward(List<int> currList, int startPoint, List<int> input, int outputs, int currIndexer)
         {
             string currOpCode = currList[startPoint].ToString().PadLeft(5, '0');
             //3,50
@@ -212,11 +202,12 @@ namespace AdventOfCodeDay7
                     switch ((int)Char.GetNumericValue(currOpCode[2]))
                     {
                         case 0:
-                            currList[loc1] = input;
+                            currList[loc1] = input[0];
+                            input.RemoveAt(0);
                             break;
                         case 1:
                             Console.WriteLine("I think this should be impossible...");
-                            currList[input] = input;
+                            currList[input[0]] = input[0];
                             break;
                         default:
                             break;
