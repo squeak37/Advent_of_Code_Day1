@@ -16,6 +16,7 @@ namespace AdventOfCode
 
             string input_file = @"C:\Users\Eoghan\source\repos\AdventOfCode\AdventOfCode\Inputs";
 
+            //input_file = input_file + @"\Day5Input.txt";
             //input_file = input_file + @"\Day7Input.txt";
             input_file = input_file + @"\Day7InputDEBUG0.txt";
 

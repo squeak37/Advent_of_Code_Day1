@@ -15,7 +15,7 @@ namespace AdventOfCodeDay5
             int input = 5;
 
             List<int> opCode = new List<int>();
-            List<int> outputs = new List<int>();
+            int outputs = 0;
             List<int> input_list = new List<int>();
 
             foreach (string tempOpCode in opCodeList)
@@ -41,12 +41,12 @@ namespace AdventOfCodeDay5
             }
 
             Console.WriteLine("Final Input List is " + string.Join(",", input_list));
-            Console.WriteLine("Final Diagnostic Code is " + string.Join(",", outputs));
+            Console.WriteLine("Final Diagnostic Code is " + outputs);
             Console.WriteLine("Final Op Code is " + string.Join(",", opCode));
             Console.ReadLine();
         }
 
-        static public Tuple<List<int>, int, List<int>, int> OpCodeForward(List<int> currList, int startPoint, int input, List<int> outputs, int currIndexer)
+        static public Tuple<List<int>, int, int, int> OpCodeForward(List<int> currList, int startPoint, int input, int outputs, int currIndexer)
         {
             string currOpCode = currList[startPoint].ToString().PadLeft(5,'0');
             //3,50
@@ -133,7 +133,8 @@ namespace AdventOfCodeDay5
                     currIndexer += 2;
                     break;
                 case 4:
-                    outputs.Add(var1);
+                    //outputs.Add(var1);
+                    outputs = var1;
                     Console.WriteLine("Output hit. Output is: " + var1);
                     currIndexer += 2;
                     break;

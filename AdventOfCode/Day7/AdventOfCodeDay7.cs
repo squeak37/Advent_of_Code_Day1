@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace AdventOfCodeDay7
@@ -13,12 +14,15 @@ namespace AdventOfCodeDay7
             string currOpCode = "";
             int currIndexer = 0;
             int opCodeCheck = 0;
-            int input = 0;
 
             List<int> opCodeOrig = new List<int>();
-            List<int> outputs = new List<int>();
             List<int> input_list = new List<int>();
             List<int> opCode = new List<int>();
+
+            List<List<char>> phaseListInput = new List<List<char>>();
+            string str = "01234";
+            char[] arr = str.ToCharArray();
+            phaseListInput = GetPer(phaseListInput, arr);
 
             foreach (string tempOpCode in opCodeList)
             {
@@ -26,9 +30,44 @@ namespace AdventOfCodeDay7
             }
             List<Tuple<int, int, int>> output2 = new List<Tuple<int, int, int>>();
 
-            opCode = new List<int>(opCodeOrig);
-            currIndexer = 0;
-            //input = j;
+            int outputs = 0;
+            int ampInput = 0;
+            int newOutput = 0;
+
+            List<char> currInputList = new List<char> { '4', '3', '2', '1', '0' };
+            //List<char> currInput = new List<char> { '0', '1', '2', '3', '4' };
+            //List<char> currInput = new List<char> { '1', '0', '4', '3', '2' };
+
+            foreach (char currInput in currInputList)
+            {
+                opCode = new List<int>(opCodeOrig);
+                opCode[0] = (int)char.GetNumericValue(currInput);
+                outputs = newOutput;
+                ampInput = outputs;
+                opCode[1] = ampInput;
+                currIndexer = 0;
+                while (true)
+                {
+                    currOpCode = opCode[currIndexer].ToString().PadLeft(5, '0');
+                    opCodeCheck = Int32.Parse(currOpCode.Substring(3, 2));
+                    //Console.WriteLine(currIndexer);
+                    //Console.WriteLine("Current Op Code is " + currOpCode);
+                    if (opCodeCheck == 99)
+                    {
+                        break;
+                    }
+                    else if(newOutput != outputs)
+                    {
+                        Console.WriteLine("I have a new output!!");
+                        break;
+                    }
+                    else
+                    {
+                        (opCode, ampInput, newOutput, currIndexer) = OpCodeForward(opCode, currIndexer, ampInput, outputs, currIndexer);
+                    }
+                }
+            }
+
             //while (true)
             //{
             //    currOpCode = opCode[currIndexer].ToString().PadLeft(5, '0');
@@ -37,35 +76,16 @@ namespace AdventOfCodeDay7
             //    //Console.WriteLine("Current Op Code is " + currOpCode);
             //    if (opCodeCheck == 99)
             //    {
-            //        output2.Add(Tuple.Create(i, j, outputs[i * 5 + j]));
             //        break;
             //    }
             //    else
             //    {
-            //        (opCode, input, outputs, currIndexer) = OpCodeForward(opCode, currIndexer, input, outputs, currIndexer);
+            //        (opCode, ampInput, outputs, currIndexer) = OpCodeForward(opCode, currIndexer, ampInput, outputs, currIndexer);
             //    }
             //}
-
-            List<int> phaseList = new List<int>{1, 2, 3};
-            // 1 2 3
-            // 1 3 2
-            // 2 1 3
-            // 2 3 1
-            // 3 1 2
-            // 3 2 1
-
-            //1 2 3 4
-            //1 2 4 3
-            //1 3 2 4
-            //1 3 4 2
-            //1 4 2 3
-            //1 4 3 2
             
-
-
-
             Console.WriteLine("Final Input List is " + string.Join(",", input_list));
-            Console.WriteLine("Final Diagnostic Code is " + string.Join(",", outputs));
+            Console.WriteLine("Final Diagnostic Code is " + outputs);
             Console.WriteLine("Final Op Code is " + string.Join(",", opCode));
             Console.ReadLine();
         }
@@ -81,28 +101,41 @@ namespace AdventOfCodeDay7
             lessThan = 7,
             greaterThan = 8
         }
-        
-        static List<int> GenerateListOfInputs(List<int> phaseList)
+
+        private static void Swap(ref char a, ref char b)
         {
-            int listSize = Factorial(phaseList.Count);
-            
-            for (int i = 0; i < listSize; i++)
+            if (a == b) return;
+
+            var temp = a;
+            a = b;
+            b = temp;
+        }
+
+        public static List<List<char>> GetPer(List<List<char>> returnList, char[] list)
+        {
+            int x = list.Length - 1;
+            returnList = GetPer(returnList,list, 0, x);
+            return returnList;
+        }
+
+        private static List<List<char>> GetPer(List<List<char>> returnList, char[] list, int k, int m)
+        {
+            if (k == m)
             {
-
+                returnList.Add(list.ToList());
+                return returnList;
             }
-
-            return phaseList;
-        }
-
-        static public int Factorial(int number)
-        {
-            if (number == 1)
-                return 1;
             else
-                return number * Factorial(number - 1);
+                for (int i = k; i <= m; i++)
+                {
+                    Swap(ref list[k], ref list[i]);
+                    returnList = GetPer(returnList, list, k + 1, m);
+                    Swap(ref list[k], ref list[i]);
+                }
+            return returnList;
         }
 
-        static public Tuple<List<int>, int, List<int>, int> OpCodeForward(List<int> currList, int startPoint, int input, List<int> outputs, int currIndexer)
+        static public Tuple<List<int>, int, int, int> OpCodeForward(List<int> currList, int startPoint, int input, int outputs, int currIndexer)
         {
             string currOpCode = currList[startPoint].ToString().PadLeft(5, '0');
             //3,50
@@ -191,7 +224,8 @@ namespace AdventOfCodeDay7
                     currIndexer += 2;
                     break;
                 case 4:
-                    outputs.Add(var1);
+                    //outputs.Add(var1);
+                    outputs = var1;
                     Console.WriteLine("Output hit. Output is: " + var1);
                     currIndexer += 2;
                     break;
