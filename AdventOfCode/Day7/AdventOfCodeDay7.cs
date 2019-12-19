@@ -15,66 +15,102 @@ namespace AdventOfCodeDay7
             string currOpCode = "";
             int currIndexer = 0;
             int opCodeCheck = 0;
-
-            List<int> opCodeOrig = new List<int>();
+            
             List<int> input_list = new List<int>();
             List<int> opCode = new List<int>();
 
             List<List<char>> phaseListInput = new List<List<char>>();
-            string str = "01234";
+            string str = "56789";
             char[] arr = str.ToCharArray();
             phaseListInput = GetPer(phaseListInput, arr);
 
             foreach (string tempOpCode in opCodeList)
             {
-                opCodeOrig.Add(int.Parse(tempOpCode));
+                opCode.Add(int.Parse(tempOpCode));
             }
-
-            int output = 0;
+            
             int maxOutput = 0;
             List<int> input = new List<int>();
             List<char> maxPhaseInput = new List<char>();
 
-            //List<char> currInputList = new List<char> { '4', '3', '2', '1', '0' };
-            //List<char> currInputList = new List<char> { '0', '1', '2', '3', '4' };
-            List<char> currInputList = new List<char> { '1', '0', '4', '3', '2' };
+            //List<char> currPhaseList = new List<char> { '4', '3', '2', '1', '0' };
+            //List<char> currPhaseList = new List<char> { '0', '1', '2', '3', '4' };
+            //List<char> currPhaseList = new List<char> { '1', '0', '4', '3', '2' };
+            //List<char> currPhaseList = new List<char> { '9', '8', '7', '6', '5' };
+            //List<char> currPhaseList = new List<char> { '9', '7', '8', '5', '6' };
 
-            IntCode currIntCode = new IntCode(opCode,input);
+            List<IntCode> ampList = new List<IntCode>();
 
             foreach (List<char> currPhaseList in phaseListInput)
             {
+                // Initialise IntCode setup
+                ampList = new List<IntCode>();
+
+                // initialise each input with its phase setting. If it's the first input, tack a 0 on (very first input = 0!)
                 foreach (char currPhase in currPhaseList)
                 {
-                    input = new List<int> { (int)char.GetNumericValue(currPhase), output };
-                    opCode = new List<int>(opCodeOrig);
-                    currIntCode = new IntCode(opCode, input);
-                    currIndexer = 0;
-                    while (true)
+                    input = new List<int>();
+                    input.Add((int)Char.GetNumericValue(currPhase));
+                    if (currPhase.Equals(currPhaseList[0]))
                     {
-                        currOpCode = opCode[currIndexer].ToString().PadLeft(5, '0');
-                        opCodeCheck = Int32.Parse(currOpCode.Substring(3, 2));
-                        //Console.WriteLine(currIndexer);
-                        //Console.WriteLine("Current Op Code is " + currOpCode);
-                        if (opCodeCheck == 99)
+                        input.Add(0);
+                    }
+                    //Make our ampList of 5x amplifiers.
+                    ampList.Add(new IntCode(new List<int>(opCode), input));
+                }
+                while (true)
+                {
+                    for (int i = 0 ; i < ampList.Count ; i++ ) 
+                    {
+                        IntCode currIntCode = ampList[i];
+                        while (true)
                         {
-                            break;
+                            currIndexer = currIntCode.CurrIndex;
+                            currOpCode = currIntCode.OpCode[currIndexer].ToString().PadLeft(5, '0');
+                            opCodeCheck = Int32.Parse(currOpCode.Substring(3, 2));
+                            if (opCodeCheck == 99)
+                            {
+                                break;
+                            }
+                            else if (opCodeCheck == 3 && currIntCode.Input.Count < 1)
+                            {
+                                //Add output to next IntCode's input list
+                                //Console.WriteLine("Input 3 and no valid input. Better keep going or I might die inside.");
+                                break;
+                            }
+                            else
+                            {
+                                currIntCode = IntCode.OpCodeForward(currIntCode);
+                            }
                         }
-                        else
+                        //we have escaped this intcode, save it!
+                        ampList[i] = currIntCode;
+                        if (i < (ampList.Count-1))
                         {
-                            (opCode, input, output, currIndexer) = OpCodeForward(opCode, currIndexer, input, output, currIndexer);
+                            // If it's not our last input, make the output part of our next input :)
+                            ampList[i + 1].Input.Add(currIntCode.Output);
                         }
+                    }
+
+                    // Will only get here on final amplifier
+                    if (opCodeCheck == 99)
+                    {
+                        // If we're done, let's check if our final output is the best ever
+                        if (ampList.Last().Output > maxOutput)
+                        {
+                            maxOutput = ampList.Last().Output;
+                            maxPhaseInput = new List<char>(currPhaseList);
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        ampList[0].Input.Add(ampList.Last().Output);
                     }
                 }
 
-                if (output > maxOutput)
-                {
-                    maxOutput = output;
-                    maxPhaseInput = new List<char>(currPhaseList);
-                }
-                output = 0;
-
             }
-            
+
             Console.WriteLine("Final Input List is " + string.Join(",", maxPhaseInput));
             Console.WriteLine("Maximum Output is " + maxOutput);
             Console.ReadLine();
@@ -125,148 +161,5 @@ namespace AdventOfCodeDay7
             return returnList;
         }
 
-        static public Tuple<List<int>, List<int>, int, int> OpCodeForward(List<int> currList, int startPoint, List<int> input, int outputs, int currIndexer)
-        {
-            string currOpCode = currList[startPoint].ToString().PadLeft(5, '0');
-            //3,50
-            int loc1 = currList[startPoint + 1];
-            int loc2 = currList[startPoint + 2];
-            int var1 = 0;
-            int var2 = 0;
-            int setPoint = currList[startPoint + 3];
-            int actualTest = Int32.Parse(currOpCode.Substring(3, 2));
-            
-
-
-            // If it's an add or multiply, we need to set two params.
-            switch (actualTest)
-            {
-                case ((int)OpCode.add):
-                case ((int)OpCode.mult):
-                case ((int)OpCode.jumpIfNon0):
-                case ((int)OpCode.jumpIf0):
-                case ((int)OpCode.lessThan):
-                case ((int)OpCode.greaterThan):
-                    switch ((int)Char.GetNumericValue(currOpCode[2]))
-                    {
-                        case 0:
-                            var1 = currList[loc1];
-                            break;
-                        case 1:
-                            var1 = loc1;
-                            break;
-                    }
-                    switch ((int)Char.GetNumericValue(currOpCode[1]))
-                    {
-                        case 0:
-                            var2 = currList[loc2];
-                            break;
-                        case 1:
-                            var2 = loc2;
-                            break;
-                    }
-                    break;
-                case ((int)OpCode.input):
-                case ((int)OpCode.output):
-                    switch ((int)Char.GetNumericValue(currOpCode[2]))
-                    {
-                        case 0:
-                            var1 = currList[loc1];
-                            break;
-                        case 1:
-                            var1 = loc1;
-                            break;
-                    }
-                    break;
-                default:
-                    {
-                        throw new System.InvalidOperationException("Lol I fucked up");
-                    }
-            }
-
-            if (currOpCode[0] != '0')
-            {
-                throw new System.InvalidOperationException("Position being written to should never be in immediate mode!");
-            }
-            switch (actualTest)
-            {
-                case 1:
-                    currList[setPoint] = var1 + var2;
-                    currIndexer += 4;
-                    break;
-                case 2:
-                    currList[setPoint] = var1 * var2;
-                    currIndexer += 4;
-                    break;
-                case 3:
-                    switch ((int)Char.GetNumericValue(currOpCode[2]))
-                    {
-                        case 0:
-                            currList[loc1] = input[0];
-                            input.RemoveAt(0);
-                            break;
-                        case 1:
-                            Console.WriteLine("I think this should be impossible...");
-                            currList[input[0]] = input[0];
-                            break;
-                        default:
-                            break;
-                    }
-                    currIndexer += 2;
-                    break;
-                case 4:
-                    //outputs.Add(var1);
-                    outputs = var1;
-                    Console.WriteLine("Output hit. Output is: " + var1);
-                    currIndexer += 2;
-                    break;
-                case 5:
-                    if (var1 != 0)
-                    {
-                        currIndexer = var2;
-                    }
-                    else
-                    {
-                        currIndexer += 3;
-                    }
-                    break;
-                case 6:
-                    if (var1 == 0)
-                    {
-                        currIndexer = var2;
-                    }
-                    else
-                    {
-                        currIndexer += 3;
-                    }
-                    break;
-                case 7:
-                    if (var1 < var2)
-                    {
-                        currList[setPoint] = 1;
-                    }
-                    else
-                    {
-                        currList[setPoint] = 0;
-                    }
-                    currIndexer += 4;
-                    break;
-                case 8:
-                    if (var1 == var2)
-                    {
-                        currList[setPoint] = 1;
-                    }
-                    else
-                    {
-                        currList[setPoint] = 0;
-                    }
-                    currIndexer += 4;
-                    break;
-                default:
-                    throw new System.InvalidOperationException("Only Valid initial number for Op Code's are 1, 2, 3, 4, and 99");
-            }
-            // angels, the chain
-            return Tuple.Create(currList, input, outputs, currIndexer);
-        }
     }
 }

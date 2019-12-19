@@ -18,7 +18,7 @@ namespace AdventOfCode
 
             //input_file = input_file + @"\Day5Input.txt";
             input_file = input_file + @"\Day7Input.txt";
-            //input_file = input_file + @"\Day7InputDEBUG2.txt";
+            //input_file = input_file + @"\Day7InputDEBUG3.txt";
 
             //AdventOfCodeDay1.Day1.Day1Main(input_file);
             //AdventOfCodeDay2.Day2.Day2Main(input_file);

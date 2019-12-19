@@ -44,7 +44,7 @@ namespace AdventOfCode
             int loc2 = opCode[currIndex + 2];
             int var1 = 0;
             int var2 = 0;
-            int setPoint = opCode[currIndex + 3];
+            int setPoint = 0;
             int actualTest = Int32.Parse(currOpCode.Substring(3, 2));
             
             // If it's an add or multiply, we need to set two params.
@@ -56,6 +56,7 @@ namespace AdventOfCode
                 case ((int)OpCodeEnum.jumpIf0):
                 case ((int)OpCodeEnum.lessThan):
                 case ((int)OpCodeEnum.greaterThan):
+                    setPoint = opCode[currIndex + 3];
                     switch ((int)Char.GetNumericValue(currOpCode[2]))
                     {
                         case 0:
@@ -175,6 +176,10 @@ namespace AdventOfCode
                     throw new System.InvalidOperationException("Only Valid initial number for Op Code's are 1, 2, 3, 4, and 99");
             }
 
+            currIntCode.CurrIndex = currIndex;
+            currIntCode.Input = input;
+            currIntCode.OpCode = opCode;
+            currIntCode.Output = output;
             return currIntCode;
         }
 
