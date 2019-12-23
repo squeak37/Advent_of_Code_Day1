@@ -10,6 +10,7 @@ namespace AdventOfCode
         public List<int> Input { get; set; }
         public int CurrIndex { get; set; }
         public int Output { get; set; }
+        public int RefPoint { get; set; }
 
         public IntCode(List<int> opCode, List<int> input)
         {
@@ -17,6 +18,7 @@ namespace AdventOfCode
             Input = new List<int>(input);
             CurrIndex = 0;
             Output = 0;
+            RefPoint = 0;
         }
 
         public enum OpCodeEnum
@@ -28,7 +30,8 @@ namespace AdventOfCode
             jumpIfNon0 = 5,
             jumpIf0 = 6,
             lessThan = 7,
-            greaterThan = 8
+            greaterThan = 8,
+            refUpdate = 9
         }
 
         static public IntCode OpCodeForward(IntCode currIntCode)
@@ -40,15 +43,29 @@ namespace AdventOfCode
             int output = currIntCode.Output;
 
             string currOpCode = opCode[currIndex].ToString().PadLeft(5, '0');
+
+            //if opcode doesn't exist
+
             int loc1 = opCode[currIndex + 1];
             int loc2 = opCode[currIndex + 2];
             int var1 = 0;
             int var2 = 0;
             int setPoint = 0;
+            int refPoint = currIntCode.RefPoint;
             int actualTest = Int32.Parse(currOpCode.Substring(3, 2));
-            
-            // If it's an add or multiply, we need to set two params.
-            switch (actualTest)
+
+            while (loc1 > opCode.Count + 1)
+            {
+                opCode.Add(0);
+            }
+            while (loc2 > opCode.Count + 1)
+            {
+                opCode.Add(0);
+            }
+            currIntCode.OpCode = opCode;
+
+                // If it's an add or multiply, we need to set two params.
+                switch (actualTest)
             {
                 case ((int)OpCodeEnum.add):
                 case ((int)OpCodeEnum.mult):
@@ -65,6 +82,9 @@ namespace AdventOfCode
                         case 1:
                             var1 = loc1;
                             break;
+                        case 2:
+                            var1 = loc1 + refPoint;
+                            break;
                     }
                     switch ((int)Char.GetNumericValue(currOpCode[1]))
                     {
@@ -74,10 +94,14 @@ namespace AdventOfCode
                         case 1:
                             var2 = loc2;
                             break;
+                        case 2:
+                            var2 = loc2 + refPoint;
+                            break;
                     }
                     break;
                 case ((int)OpCodeEnum.input):
                 case ((int)OpCodeEnum.output):
+                case ((int)OpCodeEnum.refUpdate):
                     switch ((int)Char.GetNumericValue(currOpCode[2]))
                     {
                         case 0:
@@ -85,6 +109,9 @@ namespace AdventOfCode
                             break;
                         case 1:
                             var1 = loc1;
+                            break;
+                        case 2:
+                            var1 = loc1+ refPoint;
                             break;
                     }
                     break;
@@ -172,8 +199,12 @@ namespace AdventOfCode
                     }
                     currIndex += 4;
                     break;
+                case 9:
+                    currIntCode.RefPoint = var1;
+                    currIndex += 2;
+                    break;
                 default:
-                    throw new System.InvalidOperationException("Only Valid initial number for Op Code's are 1, 2, 3, 4, and 99");
+                    throw new System.InvalidOperationException("Only Valid initial number for Op Code's are 1-9 and 99");
             }
 
             currIntCode.CurrIndex = currIndex;
