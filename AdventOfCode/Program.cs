@@ -7,6 +7,8 @@ using AdventOfCodeDay5;
 using AdventOfCodeDay6;
 using AdventOfCodeDay7;
 using AdventOfCodeDay8;
+using AdventOfCodeDay9;
+using AdventOfCodeDay10;
 
 namespace AdventOfCode
 {
@@ -18,8 +20,8 @@ namespace AdventOfCode
             string input_file = @"C:\Users\Eoghan\source\repos\AdventOfCode\AdventOfCode\Inputs";
 
             //input_file = input_file + @"\Day5Input.txt";
-            //input_file = input_file + @"\Day9InputDEBUG0.txt";
-            input_file = input_file + @"\Day9Input.txt";
+            input_file = input_file + @"\Day10InputDEBUG0.txt";
+            //input_file = input_file + @"\Day10Input.txt";
 
             //AdventOfCodeDay1.Day1.Day1Main(input_file);
             //AdventOfCodeDay2.Day2.Day2Main(input_file);
@@ -30,7 +32,8 @@ namespace AdventOfCode
             //AdventOfCodeDay6.Day6.Day6Main(input_file);
             //AdventOfCodeDay7.Day7.Day7Main(input_file);
             //AdventOfCodeDay8.Day8.Day8Main(input_file);
-            AdventOfCodeDay9.Day9.Day9Main(input_file);
+            //AdventOfCodeDay9.Day9.Day9Main(input_file);
+            AdventOfCodeDay10.Day10.Day10Main(input_file);
         }
     }
 }
