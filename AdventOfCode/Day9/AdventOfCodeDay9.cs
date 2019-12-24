@@ -11,26 +11,28 @@ namespace AdventOfCodeDay9
         {
             string[] opCodeList = System.IO.File.ReadAllText(inputFile).Split(",");
 
-            List<int> opCode = new List<int>();
-            List<int> input = new List<int>();
-            int currIndexer = 0;
+            List<decimal> opCode = new List<decimal>();
+            List<decimal> input = new List<decimal>();
+            decimal currIndexer = 0;
             string currOpCode;
             int opCodeCheck;
 
             foreach (string tempOpCode in opCodeList)
             {
-                opCode.Add(int.Parse(tempOpCode));
+                opCode.Add(decimal.Parse(tempOpCode));
             }
-            
 
-            input.Add(1);
-            IntCode currIntCode = new IntCode(new List<int>(opCode), input);
+            //Challenge 1
+            //input.Add(1);
+            //Challenge 2
+            input.Add(2);
+            IntCode currIntCode = new IntCode(new List<decimal>(opCode), input);
 
 
             while (true)
             {
                 currIndexer = currIntCode.CurrIndex;
-                currOpCode = currIntCode.OpCode[currIndexer].ToString().PadLeft(5, '0');
+                currOpCode = currIntCode.OpCode[(int)currIndexer].ToString().PadLeft(5, '0');
                 opCodeCheck = Int32.Parse(currOpCode.Substring(3, 2));
                 if (opCodeCheck == 99)
                 {

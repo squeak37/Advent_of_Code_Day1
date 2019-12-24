@@ -6,16 +6,16 @@ namespace AdventOfCode
 {
     class IntCode
     {
-        public List<int> OpCode { get; set; }
-        public List<int> Input { get; set; }
-        public int CurrIndex { get; set; }
-        public int Output { get; set; }
-        public int RefPoint { get; set; }
+        public List<decimal> OpCode { get; set; }
+        public List<decimal> Input { get; set; }
+        public decimal CurrIndex { get; set; }
+        public decimal Output { get; set; }
+        public decimal RefPoint { get; set; }
 
-        public IntCode(List<int> opCode, List<int> input)
+        public IntCode(List<decimal> opCode, List<decimal> input)
         {
-            OpCode = new List<int>(opCode);
-            Input = new List<int>(input);
+            OpCode = new List<decimal>(opCode);
+            Input = new List<decimal>(input);
             CurrIndex = 0;
             Output = 0;
             RefPoint = 0;
@@ -37,35 +37,40 @@ namespace AdventOfCode
         static public IntCode OpCodeForward(IntCode currIntCode)
         {
             // Initialise Key params
-            List<int> opCode = new List<int>(currIntCode.OpCode);
-            List<int> input = new List<int>(currIntCode.Input);
-            int currIndex = currIntCode.CurrIndex;
-            int output = currIntCode.Output;
+            List<decimal> opCode = new List<decimal>(currIntCode.OpCode);
+            List<decimal> input = new List<decimal>(currIntCode.Input);
+            decimal currIndex = currIntCode.CurrIndex;
+            decimal output = currIntCode.Output;
 
-            string currOpCode = opCode[currIndex].ToString().PadLeft(5, '0');
+            string currOpCode = opCode[(int)currIndex].ToString().PadLeft(5, '0');
 
             //if opcode doesn't exist
 
-            int loc1 = opCode[currIndex + 1];
-            int loc2 = opCode[currIndex + 2];
-            int var1 = 0;
-            int var2 = 0;
-            int setPoint = 0;
-            int refPoint = currIntCode.RefPoint;
+            decimal loc1 = opCode[(int)currIndex + 1];
+            decimal loc2 = opCode[(int)currIndex + 2];
+            decimal var1 = 0;
+            decimal var2 = 0;
+            decimal setPoint = 0;
+            decimal refPoint = currIntCode.RefPoint;
             int actualTest = Int32.Parse(currOpCode.Substring(3, 2));
 
-            while (loc1 > opCode.Count + 1)
-            {
-                opCode.Add(0);
-            }
-            while (loc2 > opCode.Count + 1)
-            {
-                opCode.Add(0);
-            }
+
+            //Console.WriteLine("Curr Op Code " + currOpCode);
+            //if (currOpCode.Equals("21107"))
+            //{
+            //    Console.WriteLine("wow, a 21107, how surprising");
+            //}
+
             currIntCode.OpCode = opCode;
 
-                // If it's an add or multiply, we need to set two params.
-                switch (actualTest)
+            //switch (actualTest)
+            //{
+            //    case ((int)OpCodeEnum.lessThan):
+            //        break;
+            //}
+
+                    // If it's an add or multiply, we need to set two params.
+                    switch (actualTest)
             {
                 case ((int)OpCodeEnum.add):
                 case ((int)OpCodeEnum.mult):
@@ -73,30 +78,65 @@ namespace AdventOfCode
                 case ((int)OpCodeEnum.jumpIf0):
                 case ((int)OpCodeEnum.lessThan):
                 case ((int)OpCodeEnum.greaterThan):
-                    setPoint = opCode[currIndex + 3];
+                    setPoint = opCode[(int)currIndex + 3];
                     switch ((int)Char.GetNumericValue(currOpCode[2]))
                     {
                         case 0:
-                            var1 = opCode[loc1];
+                            // We need to be sure we're pulling info from a valid space...
+                            while ((int)loc1 >= opCode.Count)
+                            {
+                                opCode.Add(0);
+                            }
+                            var1 = opCode[(int)loc1];
                             break;
                         case 1:
                             var1 = loc1;
                             break;
                         case 2:
-                            var1 = loc1 + refPoint;
+                            while ((int)(loc1 + refPoint) >= opCode.Count)
+                            {
+                                opCode.Add(0);
+                            }
+                            var1 = opCode[(int)(loc1 + refPoint)];
                             break;
                     }
                     switch ((int)Char.GetNumericValue(currOpCode[1]))
                     {
                         case 0:
-                            var2 = opCode[loc2];
+                            // We need to be sure we're pulling info from a valid space...
+                            while ((int)loc2 >= opCode.Count)
+                            {
+                                opCode.Add(0);
+                            }
+                            var2 = opCode[(int)loc2];
                             break;
                         case 1:
                             var2 = loc2;
                             break;
                         case 2:
-                            var2 = loc2 + refPoint;
+                            while ((int)(loc2 + refPoint) >= opCode.Count)
+                            {
+                                opCode.Add(0);
+                            }
+                            var2 = opCode[(int)(loc2 + refPoint)];
                             break;
+                    }
+                    switch ((int)Char.GetNumericValue(currOpCode[0]))
+                    {
+                        case 0:
+                            setPoint = opCode[(int)currIndex + 3];
+                            break;
+                        case 1:
+                            throw new System.InvalidOperationException("Position being written to should never be in immediate mode!");
+                        case 2:
+                            while ((opCode[(int)(currIndex + 3)] + refPoint) >= opCode.Count)
+                            {
+                                opCode.Add(0);
+                            }
+                            setPoint = opCode[(int)(currIndex + 3)] + refPoint;
+                            break;
+                        default:
+                            throw new System.InvalidOperationException("WTF even is this");
                     }
                     break;
                 case ((int)OpCodeEnum.input):
@@ -105,13 +145,22 @@ namespace AdventOfCode
                     switch ((int)Char.GetNumericValue(currOpCode[2]))
                     {
                         case 0:
-                            var1 = opCode[loc1];
+                            // We need to be sure we're pulling info from a valid space...
+                            while ((int)loc1 >= opCode.Count)
+                            {
+                                opCode.Add(0);
+                            }
+                            var1 = opCode[(int)loc1];
                             break;
                         case 1:
                             var1 = loc1;
                             break;
                         case 2:
-                            var1 = loc1+ refPoint;
+                            while ((int)(loc1 + refPoint) >= opCode.Count)
+                            {
+                                opCode.Add(0);
+                            }
+                            var1 = opCode[(int)(loc1+ refPoint)];
                             break;
                     }
                     break;
@@ -121,30 +170,41 @@ namespace AdventOfCode
                     }
             }
 
-            if (currOpCode[0] != '0')
+            //if (currOpCode[0] != '0')
+            //{
+            //    throw new System.InvalidOperationException("Position being written to should never be in immediate mode!");
+            //}
+
+            // We need to be sure our set point is a valid memory space. If our setpoint isn't... Let's remedy that!!
+            while ((int)setPoint >= opCode.Count)
             {
-                throw new System.InvalidOperationException("Position being written to should never be in immediate mode!");
+                opCode.Add(0);
             }
+
             switch (actualTest)
             {
                 case 1:
-                    opCode[setPoint] = var1 + var2;
+                    opCode[(int)setPoint] = var1 + var2;
                     currIndex += 4;
                     break;
                 case 2:
-                    opCode[setPoint] = var1 * var2;
+                    opCode[(int)setPoint] = var1 * var2;
                     currIndex += 4;
                     break;
                 case 3:
                     switch ((int)Char.GetNumericValue(currOpCode[2]))
                     {
                         case 0:
-                            opCode[loc1] = input[0];
+                            opCode[(int)loc1] = (int)input[0];
                             input.RemoveAt(0);
                             break;
                         case 1:
                             Console.WriteLine("I think this should be impossible...");
-                            opCode[input[0]] = input[0];
+                            opCode[(int)input[0]] = (int)input[0];
+                            break;
+                        case 2:
+                            opCode[(int)(loc1 + refPoint)] = (int)input[0];
+                            input.RemoveAt(0);
                             break;
                         default:
                             break;
@@ -154,7 +214,7 @@ namespace AdventOfCode
                 case 4:
                     //output.Add(var1);
                     output = var1;
-                    //Console.WriteLine("Output hit. Output is: " + var1);
+                    Console.WriteLine("Output hit. Output is: " + var1);
                     currIndex += 2;
                     break;
                 case 5:
@@ -180,27 +240,27 @@ namespace AdventOfCode
                 case 7:
                     if (var1 < var2)
                     {
-                        opCode[setPoint] = 1;
+                        opCode[(int)setPoint] = 1;
                     }
                     else
                     {
-                        opCode[setPoint] = 0;
+                        opCode[(int)setPoint] = 0;
                     }
                     currIndex += 4;
                     break;
                 case 8:
                     if (var1 == var2)
                     {
-                        opCode[setPoint] = 1;
+                        opCode[(int)setPoint] = 1;
                     }
                     else
                     {
-                        opCode[setPoint] = 0;
+                        opCode[(int)setPoint] = 0;
                     }
                     currIndex += 4;
                     break;
                 case 9:
-                    currIntCode.RefPoint = var1;
+                    currIntCode.RefPoint = currIntCode.RefPoint + var1;
                     currIndex += 2;
                     break;
                 default:

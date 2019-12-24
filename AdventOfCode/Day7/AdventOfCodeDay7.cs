@@ -13,11 +13,11 @@ namespace AdventOfCodeDay7
         {
             string[] opCodeList = System.IO.File.ReadAllText(inputFile).Split(",");
             string currOpCode = "";
-            int currIndexer = 0;
+            decimal currIndexer = 0;
             int opCodeCheck = 0;
             
-            List<int> input_list = new List<int>();
-            List<int> opCode = new List<int>();
+            List<decimal> input_list = new List<decimal>();
+            List<decimal> opCode = new List<decimal>();
 
             List<List<char>> phaseListInput = new List<List<char>>();
             string str = "56789";
@@ -29,8 +29,8 @@ namespace AdventOfCodeDay7
                 opCode.Add(int.Parse(tempOpCode));
             }
             
-            int maxOutput = 0;
-            List<int> input = new List<int>();
+            float maxOutput = 0;
+            List<decimal> input = new List<decimal>();
             List<char> maxPhaseInput = new List<char>();
 
             //List<char> currPhaseList = new List<char> { '4', '3', '2', '1', '0' };
@@ -49,14 +49,14 @@ namespace AdventOfCodeDay7
                 // initialise each input with its phase setting. If it's the first input, tack a 0 on (very first input = 0!)
                 foreach (char currPhase in currPhaseList)
                 {
-                    input = new List<int>();
+                    input = new List<decimal>();
                     input.Add((int)Char.GetNumericValue(currPhase));
                     if (currPhase.Equals(currPhaseList[0]))
                     {
                         input.Add(0);
                     }
                     //Make our ampList of 5x amplifiers.
-                    ampList.Add(new IntCode(new List<int>(opCode), input));
+                    ampList.Add(new IntCode(new List<decimal>(opCode), input));
                 }
                 while (true)
                 {
@@ -66,7 +66,7 @@ namespace AdventOfCodeDay7
                         while (true)
                         {
                             currIndexer = currIntCode.CurrIndex;
-                            currOpCode = currIntCode.OpCode[currIndexer].ToString().PadLeft(5, '0');
+                            currOpCode = currIntCode.OpCode[(int)currIndexer].ToString().PadLeft(5, '0');
                             opCodeCheck = Int32.Parse(currOpCode.Substring(3, 2));
                             if (opCodeCheck == 99)
                             {
@@ -96,9 +96,9 @@ namespace AdventOfCodeDay7
                     if (opCodeCheck == 99)
                     {
                         // If we're done, let's check if our final output is the best ever
-                        if (ampList.Last().Output > maxOutput)
+                        if ((int)ampList.Last().Output > maxOutput)
                         {
-                            maxOutput = ampList.Last().Output;
+                            maxOutput = (int)ampList.Last().Output;
                             maxPhaseInput = new List<char>(currPhaseList);
                         }
                         break;
