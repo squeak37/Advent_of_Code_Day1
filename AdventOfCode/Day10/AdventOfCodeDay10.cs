@@ -35,6 +35,7 @@ namespace AdventOfCodeDay10
             List<Tuple<double, double>> asteroidCheck1 = new List<Tuple<double, double>>(asteroidPos);
             List<Tuple<double, double>> asteroidCheck2 = new List<Tuple<double, double>>(asteroidPos);
             List<Tuple<double, double>> validAsteroidList = new List<Tuple<double, double>>();
+            Tuple<double, double> finalLoc = Tuple.Create(double.NaN, double.NaN);
             List<Tuple<Tuple<double, double>, List<Tuple<double, double>>>> asteroidCompList = new List<Tuple<Tuple<double, double>, List<Tuple<double, double>>>>();
 
             //Tuple<double, double> currAsteroid = Tuple.Create(3.0, 4.0);
@@ -78,11 +79,24 @@ namespace AdventOfCodeDay10
                 if (canSee > maxVision)
                 {
                     maxVision = canSee;
+                    finalLoc = currAsteroid;
                 }
             }
 
 
-            Console.WriteLine("Final Output is " + maxVision);
+            Console.WriteLine("Final Output is " + maxVision + " at location (" + finalLoc.Item1 + " , " + finalLoc.Item2 + ")");
+
+            asteroidCheck1 = new List<Tuple<double, double>>(asteroidPos);
+            asteroidCheck1.Remove(finalLoc);
+            double angle = 0;
+
+            foreach (Tuple<double, double> currAsteroid in asteroidCheck1)
+            {
+                angle = AngleCalculator(finalLoc, currAsteroid);
+            }
+
+
+
             Console.ReadLine();
         }
 
@@ -116,6 +130,25 @@ namespace AdventOfCodeDay10
             }
 
             return true;
+        }
+
+        public static double AngleCalculator(Tuple<double, double> a, Tuple<double, double> b)
+        {
+            double angle = 0;
+            b = Tuple.Create(b.Item1 - a.Item1, b.Item2 - a.Item2);
+            
+
+            double ab = (a.Item1 * b.Item1) + (a.Item2 * b.Item2);
+            double a2 = Math.Pow(Math.Pow(a.Item1, 2) + Math.Pow(a.Item2, 2), 0.5);
+            double b2 = Math.Pow(Math.Pow(b.Item1, 2) + Math.Pow(b.Item2, 2), 0.5);
+
+            double cosAngle = ab / (a2 * b2);
+
+            angle = (Math.Acos(cosAngle)) * 180 / Math.PI;
+
+            Console.WriteLine("Current angle is: " + angle);
+
+            return angle;
         }
     }
 }
